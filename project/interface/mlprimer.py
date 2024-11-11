@@ -3,8 +3,18 @@ import random
 import chalk as ch
 from chalk import (
     Trail,
+    Path,
+    P2,
+    hstrut,
+    Linear,
+    V2,
+    circle,
+    vstrut,
+    concat,
+    ArrowOpts,
     empty,
     make_path,
+    text,
     path,
     place_on_path,
     rectangle,
@@ -12,7 +22,7 @@ from chalk import (
     unit_y,
 )
 from colour import Color
-from drawing import aqua, black, lightblue, lightred
+from drawing import aqua, black, lightblue, lightred, white, blue
 
 import minitorch
 
@@ -183,16 +193,16 @@ def with_points(pts1, pts2, b):
 
 def graph(fn, xs=[], os=[], width=4, offset=0, c=Color("red")):
     "Draw a graph with points on it"
-    path = []
+    p = []
     m = 0
     for a in range(100):
         a = width * ((a / 100) - 0.5) - offset
-        path.append((a, fn(a)))
+        p.append((a, fn(a)))
         m = max(m, fn(a))
     dia = (
         make_path([(0, 0), (0, m)])
         + make_path([(-width / 2, 0), (width / 2, 0)])
-        + make_path(path).line_color(c).line_width(0.2)
+        + make_path(p).line_color(c).line_width(0.2)
     )
 
     for pt in xs:
@@ -205,13 +215,13 @@ def graph(fn, xs=[], os=[], width=4, offset=0, c=Color("red")):
 def show_loss(full_loss):
     d = empty()
     scores = []
-    path = []
+    p = []
     i = 0
     for j, b in enumerate(range(20)):
         b = -1.7 + b / 20
         m = Linear(1, 1, b)
         pt = (b, full_loss(m))
-        path.append(pt)
+        p.append(pt)
         if j % 5 == 0:
             d = d | hstrut(0.5) | show(m).named(("graph", i))
             p = circle(0.01).translate(pt[0], pt[1]).fill_color(black)
@@ -219,7 +229,7 @@ def show_loss(full_loss):
             i += 1
             scores.append(p)
     d = (
-        (concat(scores) + make_path(path)).center_xy().scale(3)
+        (concat(scores) + make_path(p)).center_xy().scale(3)
         / vstrut(0.5)
         / d.scale(2).center_xy()
     )
